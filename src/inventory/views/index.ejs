@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SPOTv2 - Inventory</title>
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/icons/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <script>try{var _t=localStorage.getItem("spotTheme");if(_t)document.documentElement.classList.add(_t);}catch(e){}</script>
+  <style>
+    /* ── Desktop layout ── */
+    @media (min-width: 901px) {
+      .inv-layout {
+        display: grid;
+        grid-template-columns: 1fr 260px;
+        gap: 24px;
+        align-items: start;
+      }
+      .inv-crates-col { position: sticky; top: 32px; }
+    }
+    @media (max-width: 900px) {
+      .inv-layout { display: flex; flex-direction: column; gap: 20px; }
+      .inv-crates-col { order: -1; }
+    }
+
+    /* ── Crate cards ── */
+    .crates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+    .crate-card {
+      background: var(--bg-elevated);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.18s, box-shadow 0.18s;
+      position: relative;
+    }
+    .crate-card:hover { transform: translateY(-3px) scale(1.02); }
+    .crate-card.common    { border-color: var(--rarity-common); }
+    .crate-card.rare      { border-color: var(--rarity-rare); box-shadow: 0 0 14px rgba(59,130,246,0.2); }
+    .crate-card.epic      { border-color: var(--rarity-epic); box-shadow: 0 0 18px rgba(168,85,247,0.28); }
+    .crate-card.legendary { border-color: var(--rarity-legendary); box-shadow: 0 0 24px rgba(245,158,11,0.35); }
+    .crate-card .crate-icon { font-size: 2rem; color: var(--text-secondary); display: block; margin-bottom: 8px; }
+    .crate-card.rare .crate-icon    { color: var(--rarity-rare); }
+    .crate-card.epic .crate-icon    { color: var(--rarity-epic); }
+    .crate-card.legendary .crate-icon { color: var(--rarity-legendary); }
+    .crate-type { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .crate-hint { font-size: 0.68rem; color: var(--text-muted); margin-top: 5px; }
+
+    /* ── Items ── */
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .filter-tab {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.12s;
+      color: var(--text-muted);
+    }
+    .filter-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+
+    .inv-item-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 12px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.14s;
+      position: relative;
+      overflow: hidden;
+    }
+    .inv-item-card:hover { transform: translateY(-2px); }
+    .inv-item-card .item-icon { font-size: 1.4rem; color: var(--text-muted); display: block; margin-bottom: 8px; }
+    .inv-item-card.rarity-border-rare .item-icon   { color: var(--rarity-rare); }
+    .inv-item-card.rarity-border-epic .item-icon   { color: var(--rarity-epic); }
+    .inv-item-card.rarity-border-legendary .item-icon { color: var(--rarity-legendary); }
+    .inv-item-card .item-name { font-weight: 600; font-size: 0.82rem; }
+    .inv-item-card .item-type { font-size: 0.67rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+    .inv-item-card .item-rarity-label { font-size: 0.67rem; font-weight: 700; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .equipped-dot { position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); }
+    .equip-btn {
+      display: none;
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      padding: 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .inv-item-card:hover .equip-btn { display: block; }
+
+    /* ── Empty/no-user states ── */
+    .empty-state { text-align: center; padding: 48px 20px; }
+    .empty-state .empty-icon { font-size: 2.5rem; color: var(--text-muted); margin-bottom: 14px; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .section-title { font-size: 0.95rem; font-weight: 700; }
+    .empty-page { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 20px; gap: 16px; }
+    .empty-page-icon { font-size: 3rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark"><i class="fa-solid fa-crosshairs"></i></div>
+      <div>
+        <div class="sidebar-logo-text">SPOTv2</div>
+        <div class="sidebar-logo-sub">Scouting Platform</div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <a href="/" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+      <a href="/profile" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+      <a href="/leaderboard" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Leaderboard</a>
+      <a href="/inventory" class="nav-item active"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Inventory</a>
+      <a href="/analysis" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-chart-bar"></i></span>Analysis</a>
+      <a href="/admin" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+    </div>
+  </nav>
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+    <a href="/profile" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+    <a href="/leaderboard" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Ranks</a>
+    <a href="/inventory" class="bottom-nav-item active"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Crates</a>
+    <a href="/admin" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+  </nav>
+
+  <!-- Crate open overlay -->
+  <div id="crate-overlay" class="crate-open-overlay" style="display:none">
+    <div id="crate-box" class="crate-open-box"><i class="fa-solid fa-box"></i></div>
+    <div class="crate-hint" id="crate-tap-hint">Tap to open!</div>
+    <div id="crate-result" class="crate-open-result">
+      <div id="result-icon" class="crate-result-icon"></div>
+      <div id="result-name" class="crate-result-name"></div>
+      <div id="result-rarity" class="crate-result-rarity"></div>
+      <button class="btn btn-primary btn-lg" onclick="closeCrateOverlay()">Awesome!</button>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <div id="loading" style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>
+
+    <div id="inv-content" style="display:none">
+      <div class="inv-layout">
+        <!-- Left: items collection -->
+        <div>
+          <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-layer-group" style="margin-right:8px;color:var(--text-muted)"></i>Collection</h2>
+            <span id="item-count-label" class="text-muted text-sm"></span>
+          </div>
+          <div class="filter-tabs" id="filter-tabs">
+            <div class="filter-tab active" data-filter="all">All</div>
+            <div class="filter-tab" data-filter="badge">Badges</div>
+            <div class="filter-tab" data-filter="title">Titles</div>
+            <div class="filter-tab" data-filter="theme">Themes</div>
+            <div class="filter-tab" data-filter="border">Borders</div>
+          </div>
+          <div id="items-grid" class="items-grid"></div>
+          <div id="no-items" style="display:none" class="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <h3>No items yet</h3>
+            <p class="text-muted mt-8">Open crates to get cosmetic items</p>
+          </div>
+        </div>
+
+        <!-- Right: crates -->
+        <div class="inv-crates-col">
+          <div class="section-header">
+            <h2 class="section-title"><i class="fa-solid fa-box" style="margin-right:8px;color:var(--text-muted)"></i>Crates</h2>
+            <span id="crate-count-label" class="text-muted text-sm"></span>
+          </div>
+          <div id="crates-grid" class="crates-grid"></div>
+          <div id="no-crates" style="display:none" class="card text-center" style="padding:24px">
+            <p class="text-muted" style="margin-bottom:12px">Scout more matches to earn crates</p>
+            <a href="/" class="btn btn-primary">Go Scout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="no-user" class="empty-page" style="display:none">
+      <div class="empty-page-icon"><i class="fa-solid fa-box-open"></i></div>
+      <h2>Sign in to view your inventory</h2>
+      <a href="/" class="btn btn-primary btn-lg" style="margin-top:4px">Sign in</a>
+    </div>
+  </main>
+
+  <script src="/js/toast.js"></script>
+  <script>
+  const ITEM_TYPE_ICONS = {
+    badge:  "fa-solid fa-tag",
+    title:  "fa-solid fa-pen-nib",
+    theme:  "fa-solid fa-palette",
+    border: "fa-solid fa-border-all",
+  };
+
+  let allItems = [], equippedItems = {}, currentFilter = "all";
+
+  async function loadInventory() {
+    const userId = localStorage.getItem("spotUserId");
+    if (!userId) {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("no-user").style.display = "flex";
+      return;
+    }
+
+    const data = await fetch(`/inventory/api/items?userId=${userId}`).then(r => r.json()).catch(() => null);
+    document.getElementById("loading").style.display = "none";
+    if (!data) return;
+
+    allItems = data.items || [];
+    equippedItems = data.equippedItems || {};
+    document.getElementById("inv-content").style.display = "block";
+    document.getElementById("item-count-label").textContent = `${allItems.length} items`;
+
+    // Crates
+    const cratesGrid = document.getElementById("crates-grid");
+    const count = data.unopenedCrates || 0;
+    document.getElementById("crate-count-label").textContent = `${count} available`;
+    if (count > 0) {
+      for (let i = 0; i < Math.min(count, 6); i++) {
+        const card = document.createElement("div");
+        card.className = `crate-card ${data.nextCrateType}`;
+        card.innerHTML = `<span class="crate-icon"><i class="fa-solid fa-box"></i></span><div class="crate-type rarity-${data.nextCrateType}">${data.nextCrateType}</div><div class="crate-hint">Tap to open</div>`;
+        card.addEventListener("click", () => openCrateUI(userId));
+        cratesGrid.appendChild(card);
+      }
+    } else {
+      document.getElementById("no-crates").style.display = "block";
+    }
+
+    renderItems();
+
+    document.getElementById("filter-tabs").addEventListener("click", (e) => {
+      const tab = e.target.closest(".filter-tab");
+      if (!tab) return;
+      document.querySelectorAll(".filter-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentFilter = tab.dataset.filter;
+      renderItems();
+    });
+  }
+
+  function renderItems() {
+    const grid = document.getElementById("items-grid");
+    grid.innerHTML = "";
+    const filtered = currentFilter === "all" ? allItems : allItems.filter(i => i.type === currentFilter);
+    if (!filtered.length) { document.getElementById("no-items").style.display = "block"; return; }
+    document.getElementById("no-items").style.display = "none";
+
+    for (const item of filtered) {
+      const isEquipped = Object.values(equippedItems).includes(item.itemId);
+      const card = document.createElement("div");
+      card.className = `inv-item-card rarity-border-${item.rarity}`;
+      const iconClass = ITEM_TYPE_ICONS[item.type] || "fa-solid fa-gift";
+      card.innerHTML = `
+        ${isEquipped ? '<div class="equipped-dot" title="Equipped"></div>' : ''}
+        <span class="item-icon"><i class="${iconClass}"></i></span>
+        <div class="item-name">${item.name}</div>
+        <div class="item-type">${item.type}</div>
+        <div class="item-rarity-label rarity-${item.rarity}">${item.rarity}</div>
+        <button class="equip-btn">${isEquipped ? "Unequip" : "Equip"}</button>`;
+      card.querySelector(".equip-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        equipItem(item, isEquipped);
+      });
+      grid.appendChild(card);
+    }
+  }
+
+  async function equipItem(item, isEquipped) {
+    const userId = localStorage.getItem("spotUserId");
+    const res = await fetch("/inventory/api/equip", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, slot: item.type, itemId: isEquipped ? null : item.itemId })
+    }).then(r => r.json());
+    if (res.success) {
+      equippedItems = res.equippedItems;
+      renderItems();
+      if (item.type === "theme") {
+        const prev = localStorage.getItem("spotTheme");
+        if (prev) document.documentElement.classList.remove(prev);
+        const next = isEquipped ? "" : item.cssClass;
+        localStorage.setItem("spotTheme", next);
+        if (next) document.documentElement.classList.add(next);
+      }
+      if (window.showToast) showToast("xp", isEquipped ? "Item unequipped" : `Equipped ${item.name}!`, null, 2000);
+    }
+  }
+
+  async function openCrateUI(userId) {
+    const overlay = document.getElementById("crate-overlay");
+    const box = document.getElementById("crate-box");
+    const hint = document.getElementById("crate-tap-hint");
+    overlay.style.display = "flex";
+    box.className = "crate-open-box";
+    box.innerHTML = '<i class="fa-solid fa-box"></i>';
+    document.getElementById("crate-result").classList.remove("visible");
+    hint.style.display = "block";
+
+    let opened = false;
+    box.onclick = async () => {
+      if (opened) return;
+      opened = true;
+      box.classList.add("cracking");
+      hint.style.display = "none";
+
+      const res = await fetch("/inventory/api/open-crate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      }).then(r => r.json());
+
+      setTimeout(() => {
+        box.style.display = "none";
+        if (res.item) {
+          const iconClass = ITEM_TYPE_ICONS[res.item.type] || "fa-solid fa-gift";
+          document.getElementById("result-icon").innerHTML = `<i class="${iconClass}"></i>`;
+          document.getElementById("result-name").textContent = res.item.name;
+          document.getElementById("result-rarity").className = `crate-result-rarity rarity-${res.item.rarity}`;
+          document.getElementById("result-rarity").textContent = res.item.rarity.toUpperCase();
+          document.getElementById("crate-result").classList.add("visible");
+          if (res.events && window.handleGamificationEvents) handleGamificationEvents(res.events);
+        }
+      }, 500);
+    };
+  }
+
+  function closeCrateOverlay() {
+    document.getElementById("crate-overlay").style.display = "none";
+    document.getElementById("crate-box").style.display = "block";
+    loadInventory();
+  }
+
+  loadInventory();
+  </script>
+</body>
+</html>

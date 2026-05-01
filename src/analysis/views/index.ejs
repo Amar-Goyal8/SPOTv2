@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>SPOTv2 - Analysis</title>
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/icons/site.webmanifest">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;700&family=Saira:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link href="./css/global.css" rel="stylesheet">
+  <link href="./css/internal.css" rel="stylesheet">
+  <link href="./modules.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/v2-analysis.css">
+  <script>try{var _t=localStorage.getItem("spotTheme");if(_t)document.documentElement.classList.add(_t);}catch(e){}</script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    /* Analysis nav override — analysis has its own sidebar */
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <!-- Mobile Bottom Nav for Analysis -->
+  <nav class="bottom-nav" style="display:flex">
+    <a href="/" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+    <a href="/profile" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+    <a href="/leaderboard" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Ranks</a>
+    <a href="/inventory" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Crates</a>
+    <a href="/admin" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+  </nav>
+
+  <div id="event-dropdown">
+    <button id="event-button">Choose Event</button>
+    <div id="event-menu"></div>
+  </div>
+  <div id="loading-bar-container"><div id="loading-bar"></div></div>
+  <img id="spinner" src="/img/spinner_red.svg" />
+
+  <div id="app">
+    <div id="menu">
+      <div id="logo">
+        <div id="logo-text" style="font-weight:900;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent-green));-webkit-background-clip:text;-webkit-text-fill-color:transparent">SPOTv2</div>
+      </div>
+      <div id="sidebar">
+        <button id="sidebar-toggle" class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+        <div id="button-container">
+          <button id="bubble-sheet-switch" data-mobile-text="Compare" data-desktop-text="Compare Team Scores">Compare Team Scores</button>
+          <button id="filter-teams-switch" class="different-mobile-layout" data-mobile-text="Filter" data-desktop-text="Filter Teams">Filter Teams</button>
+        </div>
+        <div id="search-container">
+          <div id="search">
+            <input placeholder="Search Teams" id="search-input" required />
+            <i id="search-icon" class="fa fa-search"></i>
+          </div>
+        </div>
+        <div id="ai-copilot" class="ai-copilot">
+          <div class="ai-copilot-title"><i class="fa-solid fa-sparkles"></i> Scout Copilot</div>
+          <div class="ai-copilot-sub">Ask anything about picklist strategy</div>
+          <div class="ai-copilot-quick" id="ai-copilot-quick">
+            <button class="ai-chip" type="button">Best defense teams right now</button>
+            <button class="ai-chip" type="button">Top safe first picks</button>
+            <button class="ai-chip" type="button">Underrated playoff steals</button>
+          </div>
+          <textarea id="ai-question" class="ai-question" placeholder="What team should we select for strong defense in playoffs?"></textarea>
+          <button id="ai-ask" class="ai-ask-btn" type="button">Ask Gemini</button>
+          <div id="ai-answer" class="ai-answer"></div>
+        </div>
+        <div id="team-list"></div>
+      </div>
+    </div>
+
+    <div id="dashboard">
+      <div id="welcome" class="visible">
+        <div id="welcome-text">SPOTv2 Analysis</div>
+        <div id="demo-label">DEMO</div>
+        <div id="welcome-subtext">Select a Team</div>
+      </div>
+      <div id="team-view">
+        <div id="main-list"></div>
+        <div id="side-list"></div>
+      </div>
+      <div id="filter-teams-view">
+        <div id="filter-navbar">
+          <div style="width:200px;margin:0 auto">
+            <div class="filter-navbar-title" style="margin-bottom:4px"></div>
+            <div class="filter-control" id="robot-action-control">
+              <button class="filter-menu-button" id="robot-action-button" type="button">Action/OPR Key <i class="fa-solid fa-chevron-down"></i></button>
+              <div class="filter-dropdown" id="robot-action-dropdown"></div>
+            </div>
+          </div>
+          <div class="filter-navbar-title">Select a Filter</div>
+          <div style="width:200px;margin:0 auto">
+            <div class="filter-navbar-title" style="margin-bottom:4px"></div>
+            <div class="filter-control" id="action-rating-control">
+              <button class="filter-menu-button" id="action-rating-button" type="button">Rating/OPR Score <i class="fa-solid fa-chevron-down"></i></button>
+              <div class="filter-dropdown" id="action-rating-dropdown"></div>
+            </div>
+          </div>
+        </div>
+        <div id="selected-filter-chips"></div>
+        <div id="main-team-container-for-teams-filter"></div>
+      </div>
+      <div id="bubble-sheet-view">
+        <div id="bubble-sheet-controls">
+          <label for="x-axis-select">X-Axis:</label><select id="x-axis-select"></select>
+          <label for="y-axis-select">Y-Axis:</label><select id="y-axis-select"></select>
+          <label for="z-axis-select">Z-Axis (Bubble Size):</label><select id="z-axis-select"></select>
+        </div>
+        <div id="bubble-sheet-container"><div class="graph" id="bubble-sheet-graph"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+  <script src="./js/util.js"></script>
+  <script src="./js/autoPick.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/elements.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuzzysort@1.2.1/fuzzysort.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.8.3.min.js"></script>
+  <script src="./js/DataTransformer.js"></script>
+  <script src="./modules.js"></script>
+  <script src="./js/analysisPipeline.js"></script>
+  <script src="./transformers.js"></script>
+  <script src="./js/script.js"></script>
+  <script src="./js/ai-copilot.js"></script>
+</body>
+</html>

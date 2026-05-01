@@ -1,0 +1,26 @@
+{
+  "secrets": {
+    "DATABASE_PROVIDER": "supabase",
+    "DATABASE_URL": "",
+    "SUPABASE_URL": "",
+    "SUPABASE_SERVICE_ROLE_KEY": "",
+    "GEMINI_API_KEY": "",
+    "GEMINI_MODEL": "gemini-1.5-flash",
+    "TBA_API_KEY": "",
+    "GOOGLE_AUTH": {
+      "CLIENT_ID": "",
+      "CLIENT_SECRET": ""
+    },
+    "FMS_API_USERNAME": "",
+    "FMS_API_KEY": "",
+    "ACCESS_CODE": ""
+  },
+
+  "VERSION": "2.0.0",
+  "TBA_EVENT_KEY": "",
+  "DEMO": false,
+  "SWAP_ZONE_BUTTON_LOCATIONS": false,
+  "TBA_OPR_STRINGS": {
+    "string_1": ""
+  }
+}

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SPOTv2 - Profile</title>
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/icons/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <script>try{var _t=localStorage.getItem("spotTheme");if(_t)document.documentElement.classList.add(_t);}catch(e){}</script>
+  <style>
+    /* ── Profile hero ── */
+    .profile-hero {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .profile-avatar-wrap { position: relative; flex-shrink: 0; }
+    .profile-info { flex: 1; min-width: 0; }
+    .profile-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.02em;
+    }
+    .profile-title { color: var(--text-muted); font-size: 0.82rem; margin-top: 3px; }
+    .profile-xp-section { margin-top: 12px; }
+    .profile-xp-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    /* ── Desktop: side-by-side layout ── */
+    @media (min-width: 901px) {
+      .profile-body {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 20px;
+        align-items: start;
+      }
+      .profile-main { display: flex; flex-direction: column; gap: 20px; }
+      .profile-side { display: flex; flex-direction: column; gap: 20px; }
+    }
+    @media (max-width: 900px) {
+      .profile-body { display: flex; flex-direction: column; gap: 16px; }
+      .profile-hero { padding: 18px; gap: 14px; }
+      .profile-name { font-size: 1.15rem; }
+    }
+
+    /* ── Equipped slots ── */
+    .equipped-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .equipped-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .slot-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.14s, transform 0.14s;
+    }
+    .slot-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .slot-card .slot-icon { font-size: 1.3rem; color: var(--text-muted); margin-bottom: 6px; }
+    .slot-card .slot-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
+    .slot-card .slot-value { font-size: 0.8rem; font-weight: 600; margin-top: 4px; color: var(--text-primary); }
+    .slot-card.has-item .slot-icon { color: var(--accent); }
+
+    /* ── Achievements ── */
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .achievement-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .ach-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .ach-card.earned { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.05); }
+    .ach-card.locked { opacity: 0.4; }
+    .ach-icon { font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; width: 20px; text-align: center; margin-top: 1px; }
+    .ach-card.earned .ach-icon { color: var(--rarity-legendary); }
+    .ach-name { font-weight: 700; font-size: 0.82rem; }
+    .ach-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+    .ach-xp { font-size: 0.68rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
+
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    h3.section-title { font-size: 0.95rem; font-weight: 700; letter-spacing: -0.01em; }
+
+    /* ── No user state ── */
+    .empty-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 20px;
+      gap: 16px;
+    }
+    .empty-page-icon { font-size: 3rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <!-- Desktop Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark"><i class="fa-solid fa-crosshairs"></i></div>
+      <div>
+        <div class="sidebar-logo-text">SPOTv2</div>
+        <div class="sidebar-logo-sub">Scouting Platform</div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <a href="/" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+      <a href="/profile" class="nav-item active"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+      <a href="/leaderboard" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Leaderboard</a>
+      <a href="/inventory" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Inventory</a>
+      <a href="/analysis" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-chart-bar"></i></span>Analysis</a>
+      <a href="/admin" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+    </div>
+  </nav>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+    <a href="/profile" class="bottom-nav-item active"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+    <a href="/leaderboard" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Ranks</a>
+    <a href="/inventory" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Crates</a>
+    <a href="/admin" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+  </nav>
+
+  <main class="main-content">
+    <div id="loading" style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>
+
+    <div id="profile-content" style="display:none">
+      <!-- Hero card -->
+      <div class="profile-hero">
+        <div class="profile-avatar-wrap">
+          <img id="profile-pic" class="avatar avatar-xl" src="" alt="Avatar" onerror="this.style.display='none'">
+          <div id="level-badge" class="level-badge" style="position:absolute;bottom:-4px;right:-4px">1</div>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">
+            <span id="profile-name">–</span>
+            <span id="profile-badge-display" class="badge-pill" style="display:none"></span>
+          </div>
+          <div class="profile-title" id="profile-title">Scout</div>
+          <div class="profile-xp-section">
+            <div class="profile-xp-label">
+              <span id="xp-label">0 XP</span>
+              <span id="xp-next-label">Level 2</span>
+            </div>
+            <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stat-grid mb-16">
+        <div class="stat-block"><div class="stat-value" id="stat-matches">0</div><div class="stat-label">Matches</div></div>
+        <div class="stat-block"><div class="stat-value" id="stat-level">1</div><div class="stat-label">Level</div></div>
+        <div class="stat-block"><div class="stat-value" id="stat-xp">0</div><div class="stat-label">Total XP</div></div>
+        <div class="stat-block"><div class="stat-value" id="stat-crates">0</div><div class="stat-label">Crates Opened</div></div>
+      </div>
+
+      <div class="profile-body">
+        <div class="profile-main">
+          <!-- Achievements -->
+          <div class="card">
+            <div class="section-header">
+              <h3 class="section-title">Achievements</h3>
+              <span id="ach-count" class="text-muted text-sm"></span>
+            </div>
+            <div class="achievement-grid" id="achievement-grid"></div>
+          </div>
+        </div>
+        <div class="profile-side">
+          <!-- Equipped items -->
+          <div class="card">
+            <div class="section-header">
+              <h3 class="section-title">Equipped</h3>
+              <a href="/inventory" class="btn btn-ghost btn-sm">Manage</a>
+            </div>
+            <div class="equipped-grid" id="equipped-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="no-user" class="empty-page" style="display:none">
+      <div class="empty-page-icon"><i class="fa-solid fa-user-slash"></i></div>
+      <h2>Sign in to view your profile</h2>
+      <p class="text-muted">Your XP, achievements, and items are saved to your account.</p>
+      <a href="/" class="btn btn-primary btn-lg" style="margin-top:4px">Sign in</a>
+    </div>
+  </main>
+
+  <script src="/js/toast.js"></script>
+  <script>
+  const ACH_ICONS = {
+    first_match: "fa-solid fa-flag",
+    hat_trick:   "fa-solid fa-fire-flame-curved",
+    five_streak: "fa-solid fa-bolt",
+    iron_scout:  "fa-solid fa-robot",
+    veteran:     "fa-solid fa-shield-halved",
+    legend:      "fa-solid fa-crown",
+    speed_demon: "fa-solid fa-gauge-high",
+    level_5:     "fa-solid fa-star",
+    level_10:    "fa-solid fa-gem",
+    crate_opener:"fa-solid fa-box-open",
+    crate_addict:"fa-solid fa-boxes-stacked",
+    legendary_drop:"fa-solid fa-clover",
+  };
+
+  const SLOT_ICONS = {
+    badge:  "fa-solid fa-tag",
+    title:  "fa-solid fa-pen-nib",
+    theme:  "fa-solid fa-palette",
+    border: "fa-solid fa-border-all",
+  };
+
+  (async () => {
+    const userId = localStorage.getItem("spotUserId");
+    if (!userId) {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("no-user").style.display = "flex";
+      return;
+    }
+
+    const data = await fetch(`/profile/api/full?userId=${userId}`).then(r => r.json()).catch(() => null);
+    if (!data) { document.getElementById("loading").style.display = "none"; return; }
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("profile-content").style.display = "block";
+
+    const { user, items, achievements, levelProgress, xpForNextLevel } = data;
+
+    document.getElementById("profile-pic").src = user.picture || "";
+    document.getElementById("profile-name").textContent = user.name || "Scout";
+
+    const titleItem = items.find(i => i.itemId === user.equippedItems?.title);
+    document.getElementById("profile-title").textContent = titleItem ? titleItem.value : "Scout";
+
+    const badgeItem = items.find(i => i.itemId === user.equippedItems?.badge);
+    if (badgeItem) {
+      const badgeEl = document.getElementById("profile-badge-display");
+      badgeEl.textContent = badgeItem.name;
+      badgeEl.style.display = "inline-flex";
+    }
+
+    const lvl = user.level;
+    const badge = document.getElementById("level-badge");
+    badge.textContent = lvl;
+    if (lvl >= 8) badge.classList.add("lvl-high");
+    else if (lvl >= 5) badge.classList.add("lvl-mid");
+
+    document.getElementById("xp-bar").style.width = levelProgress + "%";
+    document.getElementById("xp-label").textContent = `${user.xp} XP`;
+    document.getElementById("xp-next-label").textContent = `Level ${lvl + 1} — ${xpForNextLevel} XP`;
+
+    document.getElementById("stat-matches").textContent = user.matchesScoutedCount;
+    document.getElementById("stat-level").textContent = user.level;
+    document.getElementById("stat-xp").textContent = user.xp;
+    document.getElementById("stat-crates").textContent = user.cratesOpened;
+
+    // Equipped grid
+    const slots = [
+      { slot: "badge",  label: "Badge"  },
+      { slot: "title",  label: "Title"  },
+      { slot: "theme",  label: "Theme"  },
+      { slot: "border", label: "Border" },
+    ];
+    const equippedGrid = document.getElementById("equipped-grid");
+    for (const { slot, label } of slots) {
+      const equippedId = user.equippedItems?.[slot];
+      const item = equippedId ? items.find(i => i.itemId === equippedId) : null;
+      const card = document.createElement("div");
+      card.className = `slot-card${item ? " has-item" : ""}`;
+      card.innerHTML = `<div class="slot-icon"><i class="${SLOT_ICONS[slot]}"></i></div><div class="slot-label">${label}</div><div class="slot-value">${item ? item.name : "None"}</div>`;
+      card.onclick = () => window.location.href = "/inventory";
+      equippedGrid.appendChild(card);
+    }
+
+    // Achievements
+    const earnedCount = achievements.filter(a => a.earned).length;
+    document.getElementById("ach-count").textContent = `${earnedCount} / ${achievements.length}`;
+    const achGrid = document.getElementById("achievement-grid");
+    for (const ach of achievements) {
+      const card = document.createElement("div");
+      card.className = `ach-card ${ach.earned ? "earned" : "locked"}`;
+      const iconClass = ACH_ICONS[ach.id] || "fa-solid fa-medal";
+      card.innerHTML = `<div class="ach-icon"><i class="${iconClass}"></i></div><div><div class="ach-name">${ach.name}</div><div class="ach-desc">${ach.desc}</div><div class="ach-xp">+${ach.xp} XP</div></div>`;
+      achGrid.appendChild(card);
+    }
+
+    // Apply theme
+    const themeItem = items.find(i => i.itemId === user.equippedItems?.theme);
+    const prev = localStorage.getItem("spotTheme");
+    if (prev) document.documentElement.classList.remove(prev);
+    if (themeItem && themeItem.cssClass) {
+      document.documentElement.classList.add(themeItem.cssClass);
+      localStorage.setItem("spotTheme", themeItem.cssClass);
+    } else {
+      localStorage.setItem("spotTheme", "");
+    }
+  })();
+  </script>
+</body>
+</html>

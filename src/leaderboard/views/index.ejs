@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SPOTv2 - Leaderboard</title>
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/icons/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <script>try{var _t=localStorage.getItem("spotTheme");if(_t)document.documentElement.classList.add(_t);}catch(e){}</script>
+  <style>
+    /* ── Header ── */
+    .lb-header { margin-bottom: 24px; }
+    .lb-header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .lb-header h1 i { color: var(--rarity-legendary); font-size: 1.3rem; }
+    .lb-header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+    /* ── Desktop: two-column layout ── */
+    @media (min-width: 901px) {
+      .lb-layout {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 24px;
+        align-items: start;
+      }
+      .lb-podium-col { position: sticky; top: 32px; }
+    }
+    @media (max-width: 900px) {
+      .lb-layout { display: flex; flex-direction: column; gap: 20px; }
+    }
+
+    /* ── Podium ── */
+    .podium {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 20px 20px;
+    }
+    .podium-title {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .podium-stage {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .podium-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .podium-img { border-radius: 50%; object-fit: cover; border: 2px solid var(--border); }
+    .podium-name {
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-align: center;
+      max-width: 72px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .podium-xp { font-size: 0.68rem; color: var(--text-muted); }
+    .podium-base {
+      border-radius: 6px 6px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 900;
+      color: #fff;
+      width: 56px;
+    }
+    .p1 .podium-img { width: 60px; height: 60px; border-color: var(--rarity-legendary); }
+    .p1 .podium-base { height: 72px; background: linear-gradient(180deg, #f59e0b, #d97706); }
+    .p2 .podium-img { width: 48px; height: 48px; border-color: #94a3b8; }
+    .p2 .podium-base { height: 52px; background: linear-gradient(180deg, #64748b, #475569); }
+    .p3 .podium-img { width: 44px; height: 44px; border-color: #b47850; }
+    .p3 .podium-base { height: 40px; background: linear-gradient(180deg, #b45309, #92400e); }
+
+    /* ── Leaderboard list ── */
+    .lb-table { display: flex; flex-direction: column; gap: 6px; }
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 11px 14px;
+      transition: border-color 0.12s;
+    }
+    .lb-row:hover { border-color: var(--border-accent); }
+    .lb-row.top-1 { background: linear-gradient(135deg, rgba(245,158,11,.08), var(--bg-surface)); border-color: rgba(245,158,11,0.35); }
+    .lb-row.top-2 { border-color: rgba(148,163,184,0.4); }
+    .lb-row.top-3 { border-color: rgba(180,120,80,0.4); }
+    .lb-row.me-indicator { background: var(--accent-dim); border-color: var(--border-accent); }
+
+    .lb-rank {
+      font-size: 0.8rem;
+      font-weight: 800;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+      color: var(--text-muted);
+    }
+    .lb-rank.r1 { color: var(--rarity-legendary); }
+    .lb-rank.r2 { color: #94a3b8; }
+    .lb-rank.r3 { color: #b47850; }
+    .lb-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lb-title { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+    .lb-right { text-align: right; flex-shrink: 0; }
+    .lb-xp { font-size: 0.88rem; font-weight: 700; color: var(--accent); }
+    .lb-matches { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+    .me-tag {
+      font-size: 0.65rem;
+      background: var(--accent);
+      color: #fff;
+      padding: 1px 6px;
+      border-radius: 100px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark"><i class="fa-solid fa-crosshairs"></i></div>
+      <div>
+        <div class="sidebar-logo-text">SPOTv2</div>
+        <div class="sidebar-logo-sub">Scouting Platform</div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <a href="/" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+      <a href="/profile" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+      <a href="/leaderboard" class="nav-item active"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Leaderboard</a>
+      <a href="/inventory" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Inventory</a>
+      <a href="/analysis" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-chart-bar"></i></span>Analysis</a>
+      <a href="/admin" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+    </div>
+  </nav>
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+    <a href="/profile" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+    <a href="/leaderboard" class="bottom-nav-item active"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Ranks</a>
+    <a href="/inventory" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Crates</a>
+    <a href="/admin" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+  </nav>
+
+  <main class="main-content">
+    <div class="lb-header">
+      <h1><i class="fa-solid fa-trophy"></i> Leaderboard</h1>
+      <p>Top scouts ranked by XP earned</p>
+    </div>
+
+    <div id="loading" style="display:flex;align-items:center;justify-content:center;height:120px"><div class="spinner"></div></div>
+
+    <div id="lb-body" style="display:none" class="lb-layout">
+      <div>
+        <div id="lb-list" class="lb-table"></div>
+      </div>
+      <div class="lb-podium-col">
+        <div id="podium" class="podium"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (async () => {
+    const myId = localStorage.getItem("spotUserId");
+    const data = await fetch("/leaderboard/api/").then(r => r.json()).catch(() => []);
+    document.getElementById("loading").style.display = "none";
+    if (!data.length) return;
+    document.getElementById("lb-body").style.display = "";
+
+    // Podium (top 3) — order: 2nd, 1st, 3rd
+    const podiumEl = document.getElementById("podium");
+    podiumEl.innerHTML = `<div class="podium-title"><i class="fa-solid fa-medal"></i>&nbsp; Top Scouts</div><div class="podium-stage" id="podium-stage"></div>`;
+    const stage = podiumEl.querySelector("#podium-stage");
+    const top3Order = [data[1], data[0], data[2]].filter(Boolean);
+    const podiumClasses = ["p2","p1","p3"];
+    const rankLabels = ["2","1","3"];
+    for (const [i, user] of top3Order.entries()) {
+      const div = document.createElement("div");
+      div.className = `podium-item ${podiumClasses[i]}`;
+      div.innerHTML = `
+        <img class="podium-img" src="${user.picture || ''}" onerror="this.style.display='none'" alt="">
+        <div class="podium-name">${user.name}</div>
+        <div class="podium-xp">${user.xp} XP</div>
+        <div class="podium-base">${rankLabels[i]}</div>`;
+      stage.appendChild(div);
+    }
+
+    // Full list
+    const list = document.getElementById("lb-list");
+    for (const user of data) {
+      const isMe = myId && String(user._id) === myId;
+      const row = document.createElement("div");
+      row.className = `lb-row ${user.rank <= 3 ? 'top-' + user.rank : ''} ${isMe ? 'me-indicator' : ''}`;
+      const rankClass = user.rank === 1 ? 'r1' : user.rank === 2 ? 'r2' : user.rank === 3 ? 'r3' : '';
+      row.innerHTML = `
+        <div class="lb-rank ${rankClass}">${user.rank <= 3 ? `<i class="fa-solid fa-medal"></i>` : '#' + user.rank}</div>
+        <img class="lb-avatar" src="${user.picture || ''}" onerror="this.style.display='none'" alt="">
+        <div class="lb-info">
+          <div class="lb-name">
+            ${user.name}
+            ${isMe ? '<span class="me-tag">You</span>' : ''}
+          </div>
+          <div class="lb-title">${user.title || 'Scout'}${user.badgeName ? ' · ' + user.badgeName : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+          <div class="lb-right">
+            <div class="lb-xp">${user.xp} XP</div>
+            <div class="lb-matches">${user.matchesScoutedCount} matches</div>
+          </div>
+          <div class="level-badge ${user.level >= 8 ? 'lvl-high' : user.level >= 5 ? 'lvl-mid' : ''}">${user.level}</div>
+        </div>`;
+      list.appendChild(row);
+    }
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SPOTv2 - Scouting</title>
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/icons/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Saira:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/scouting.css">
+  <script>try{var _t=localStorage.getItem("spotTheme");if(_t)document.documentElement.classList.add(_t);}catch(e){}</script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./js/lib/qrcode.js"></script>
+  <script src="./js/qrcode.js"></script>
+  <script src="./js/local-data.js"></script>
+  <script src="./js/scouting-sync.js"></script>
+  <script src="./js/internal.js"></script>
+  <script src="/js/toast.js"></script>
+</head>
+<body id="scouting-app">
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <a href="/" class="bottom-nav-item active" id="nav-scout">
+      <span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout
+    </a>
+    <a href="/profile" class="bottom-nav-item" id="nav-profile">
+      <span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile
+    </a>
+    <a href="/leaderboard" class="bottom-nav-item" id="nav-leaderboard">
+      <span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Ranks
+    </a>
+    <a href="/inventory" class="bottom-nav-item" id="nav-inventory">
+      <span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Crates
+    </a>
+    <a href="/admin" class="bottom-nav-item" id="nav-admin">
+      <span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin
+    </a>
+  </nav>
+
+  <!-- Status bar -->
+  <div class="scout-statusbar" id="scout-statusbar">
+    <div class="status-left">
+      <div class="connection-dot" id="conn-dot"></div>
+      <span class="connection-label" id="conn-label">Connecting...</span>
+    </div>
+    <div class="scouting-info" id="scouting-info" style="display:none"></div>
+    <div class="last-actions" id="last-actions"></div>
+  </div>
+
+  <!-- Page container -->
+  <div id="pages">
+    <% for (let filename of pages) { %>
+      <div id="<%= filename.replace('.ejs','') %>" class="page <%= filename === landingPage + '.ejs' ? 'visible' : '' %>">
+        <%- include(`pages/${filename}`) %>
+      </div>
+    <% } %>
+  </div>
+
+</body>
+</html>

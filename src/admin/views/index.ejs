@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SPOTv2 - Admin</title>
+  <link rel="icon" type="image/x-icon" href="/icons/favicon.ico">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/icons/site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/design-system.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <script>try{var _t=localStorage.getItem("spotTheme");if(_t)document.documentElement.classList.add(_t);}catch(e){}</script>
+  <style>
+    /* ── Desktop two-col grid ── */
+    .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
+
+    /* ── Scouter cards ── */
+    .scouter-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .scouter-status { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .s-new         { background: var(--text-muted); }
+    .s-waiting     { background: #f59e0b; box-shadow: 0 0 6px #f59e0b88; }
+    .s-scouting    { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+    .s-complete    { background: var(--accent); }
+    .s-disconnected{ background: var(--accent-red); }
+    .scouter-name { font-weight: 600; font-size: 0.88rem; }
+    .scouter-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+
+    /* ── Match list ── */
+    .match-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.12s;
+    }
+    .match-item:hover { border-color: var(--border-accent); }
+    .match-item.current { border-color: var(--accent-green); background: rgba(34,211,160,.07); }
+    .match-num { font-weight: 700; font-size: 0.88rem; }
+    .match-teams { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 8px; }
+    .team-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+    .team-dot.red  { background: #ef4444; }
+    .team-dot.blue { background: #3b82f6; }
+    .match-red  { color: #ef4444; }
+    .match-blue { color: #3b82f6; }
+
+    /* ── Quick actions ── */
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+    .action-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.12s, transform 0.12s;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+    .action-card:hover { border-color: var(--border-accent); transform: translateY(-2px); text-decoration: none; }
+    .action-card .action-icon { font-size: 1.3rem; color: var(--text-muted); }
+    .action-card:hover .action-icon { color: var(--accent); }
+    .action-card .action-label { font-size: 0.78rem; font-weight: 600; }
+
+    /* ── Access overlay ── */
+    .access-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      flex-direction: column;
+      gap: 20px;
+      padding: 24px;
+    }
+    .access-box { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 340px; }
+    .access-icon { font-size: 2.5rem; color: var(--text-muted); }
+    .access-input { width: 100%; }
+
+    #refresh-label { position: fixed; bottom: calc(var(--nav-height) + 12px); right: 16px; font-size: 0.68rem; color: var(--text-muted); }
+    @media (min-width: 901px) { #refresh-label { bottom: 16px; } }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark"><i class="fa-solid fa-crosshairs"></i></div>
+      <div>
+        <div class="sidebar-logo-text">SPOTv2</div>
+        <div class="sidebar-logo-sub">Scouting Platform</div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <a href="/" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+      <a href="/profile" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+      <a href="/leaderboard" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Leaderboard</a>
+      <a href="/inventory" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Inventory</a>
+      <a href="/analysis" class="nav-item"><span class="nav-icon"><i class="fa-solid fa-chart-bar"></i></span>Analysis</a>
+      <a href="/admin" class="nav-item active"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+    </div>
+  </nav>
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-crosshairs"></i></span>Scout</a>
+    <a href="/profile" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-user"></i></span>Profile</a>
+    <a href="/leaderboard" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-trophy"></i></span>Ranks</a>
+    <a href="/inventory" class="bottom-nav-item"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Crates</a>
+    <a href="/admin" class="bottom-nav-item active"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Admin</a>
+  </nav>
+
+  <!-- Access code overlay -->
+  <div id="access-overlay" class="access-overlay" style="display:none">
+    <div class="access-box">
+      <div class="access-icon"><i class="fa-solid fa-lock"></i></div>
+      <div style="text-align:center">
+        <h2>Admin Access</h2>
+        <p class="text-muted mt-4" style="font-size:0.88rem">Enter your access code to continue</p>
+      </div>
+      <input type="password" id="access-input" class="access-input" placeholder="Access code..." />
+      <button class="btn btn-primary btn-lg w-full" onclick="submitAccessCode()">Unlock</button>
+      <p id="access-error" style="color:var(--accent-red);font-size:0.82rem;display:none">Incorrect access code</p>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <div id="loading" style="display:flex;align-items:center;justify-content:center;height:200px"><div class="spinner"></div></div>
+    <div id="admin-content" style="display:none">
+      <div class="flex items-center justify-between mb-16" style="gap:16px">
+        <h1 style="letter-spacing:-0.025em">Admin</h1>
+        <span id="demo-badge" class="badge-pill" style="display:none;background:var(--accent-dim);color:var(--accent)">DEMO MODE</span>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="card mb-16">
+        <h3 style="margin-bottom:12px;font-size:0.9rem;font-weight:700">Quick Actions</h3>
+        <div class="quick-actions">
+          <button class="action-card" onclick="assignScouters()">
+            <span class="action-icon"><i class="fa-solid fa-play"></i></span>
+            <span class="action-label">Start Match</span>
+          </button>
+          <a href="/analysis/api/csv" class="action-card">
+            <span class="action-icon"><i class="fa-solid fa-file-csv"></i></span>
+            <span class="action-label">Export CSV</span>
+          </a>
+          <a href="/analysis" class="action-card">
+            <span class="action-icon"><i class="fa-solid fa-chart-bar"></i></span>
+            <span class="action-label">Analysis</span>
+          </a>
+          <a href="/leaderboard" class="action-card">
+            <span class="action-icon"><i class="fa-solid fa-trophy"></i></span>
+            <span class="action-label">Leaderboard</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="admin-grid">
+        <!-- Scouters -->
+        <div class="card">
+          <div class="flex items-center justify-between mb-16" style="gap:8px">
+            <h3 style="font-size:0.9rem;font-weight:700">Scouters <span id="scouter-count" class="text-muted text-sm"></span></h3>
+            <button class="btn btn-primary btn-sm" onclick="assignScouters()">Assign All</button>
+          </div>
+          <div id="scouter-list" style="display:flex;flex-direction:column;gap:7px">
+            <div class="text-muted text-sm">No scouters connected</div>
+          </div>
+        </div>
+
+        <!-- Matches -->
+        <div class="card">
+          <h3 class="mb-16" style="font-size:0.9rem;font-weight:700">Matches <span id="current-match-label" class="text-muted text-sm"></span></h3>
+          <div id="match-list" style="display:flex;flex-direction:column;gap:5px;max-height:380px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <span id="refresh-label">Auto-refresh every 5s</span>
+
+  <script>
+  let accessCode = localStorage.getItem("adminAccessCode") || "";
+  let currentMatch = null;
+
+  async function init() {
+    const authRes = await fetch("/admin/api/auth", { headers: { Authorization: accessCode } }).then(r => r.json()).catch(() => ({ status: 0 }));
+    if (authRes.status === 0) {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("access-overlay").style.display = "flex";
+      return;
+    }
+    if (authRes.status === 2) document.getElementById("demo-badge").style.display = "inline-flex";
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("admin-content").style.display = "block";
+    refreshData();
+    setInterval(refreshData, 5000);
+  }
+
+  async function submitAccessCode() {
+    accessCode = document.getElementById("access-input").value;
+    const res = await fetch("/admin/api/auth", { headers: { Authorization: accessCode } }).then(r => r.json());
+    if (res.status === 0) { document.getElementById("access-error").style.display = "block"; return; }
+    localStorage.setItem("adminAccessCode", accessCode);
+    document.getElementById("access-overlay").style.display = "none";
+    document.getElementById("admin-content").style.display = "block";
+    refreshData();
+    setInterval(refreshData, 5000);
+  }
+
+  async function refreshData() {
+    const [scoutersRes, matchesRes] = await Promise.all([
+      fetch("/admin/api/scouters", { headers: { Authorization: accessCode } }).then(r => r.json()),
+      fetch("/admin/api/matches", { headers: { Authorization: accessCode } }).then(r => r.json()),
+    ]).catch(() => [[], { allMatches: [], currentMatch: null }]);
+
+    renderScouters(Array.isArray(scoutersRes) ? scoutersRes : []);
+    if (matchesRes) { currentMatch = matchesRes.currentMatch; renderMatches(matchesRes.allMatches || [], matchesRes.currentMatch); }
+  }
+
+  function renderScouters(scouters) {
+    const list = document.getElementById("scouter-list");
+    const statusClasses = ["s-new","s-waiting","s-scouting","s-complete","s-disconnected"];
+    const statusLabels  = ["New","Waiting","Scouting","Complete","Disconnected"];
+    document.getElementById("scouter-count").textContent = `(${scouters.filter(s => s.state?.connected).length} online)`;
+    if (!scouters.length) { list.innerHTML = '<div class="text-muted text-sm">No scouters connected</div>'; return; }
+    list.innerHTML = "";
+    for (const s of scouters) {
+      const div = document.createElement("div");
+      div.className = "scouter-card";
+      const statusIdx = s.state?.status ?? 0;
+      div.innerHTML = `
+        <div class="flex items-center gap-8">
+          <div class="scouter-status ${statusClasses[statusIdx] || 's-new'}"></div>
+          <div>
+            <div class="scouter-name">${s.state?.scouterId || "Unknown"}</div>
+            <div class="scouter-meta">${statusLabels[statusIdx] || "New"} · M${s.state?.matchNumber || "–"} · T${s.state?.robotNumber || "–"}</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="disconnectScouter('${s.state?.scouterId}')">Kick</button>`;
+      list.appendChild(div);
+    }
+  }
+
+  function renderMatches(matches, current) {
+    const list = document.getElementById("match-list");
+    if (current) document.getElementById("current-match-label").textContent = `(M${current.number} active)`;
+    list.innerHTML = "";
+    for (const m of matches.slice(0, 30)) {
+      const div = document.createElement("div");
+      div.className = `match-item ${current?.number === m.number ? "current" : ""}`;
+      div.innerHTML = `
+        <div>
+          <div class="match-num">Match ${m.number}</div>
+          <div class="match-teams">
+            <span class="match-red"><span class="team-dot red"></span>${(m.robots?.red || []).join(", ")}</span>
+            <span class="match-blue"><span class="team-dot blue"></span>${(m.robots?.blue || []).join(", ")}</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="setMatch(${JSON.stringify(m).replace(/"/g,'&quot;')})">Set</button>`;
+      list.appendChild(div);
+    }
+  }
+
+  async function assignScouters() {
+    await fetch("/admin/api/enterMatch", { headers: { Authorization: accessCode } });
+    refreshData();
+  }
+
+  async function disconnectScouter(scouterId) {
+    await fetch(`/admin/api/disconnectScouter/${scouterId}`, { headers: { Authorization: accessCode } });
+    refreshData();
+  }
+
+  async function setMatch(match) {
+    await fetch("/admin/api/setMatch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: accessCode },
+      body: JSON.stringify(match)
+    });
+    refreshData();
+  }
+
+  document.getElementById("access-input")?.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAccessCode(); });
+
+  init();
+  </script>
+</body>
+</html>

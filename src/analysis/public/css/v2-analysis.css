@@ -1,0 +1,297 @@
+:root {
+  --bg: #0d0f14;
+  --bg-alt: #161920;
+  --text: #f0f2f8;
+  --text-alt: #9aa3b8;
+  --accent: #6c63ff;
+  --accent-alt: #22d3a0;
+  --orange-light: #8b8dff;
+  --border-radius: 14px;
+  --font: "Inter", system-ui, sans-serif;
+}
+
+html,
+body {
+  background: radial-gradient(1100px 700px at 10% -10%, rgba(108, 99, 255, 0.18), transparent),
+    radial-gradient(900px 700px at 105% 5%, rgba(34, 211, 160, 0.12), transparent),
+    var(--bg);
+}
+
+#app {
+  grid-template-columns: 300px minmax(0, 1fr);
+  background: transparent;
+}
+
+#logo {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.22), rgba(34, 211, 160, 0.15));
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#sidebar {
+  background: rgba(22, 25, 32, 0.82);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+#dashboard > div.visible {
+  height: 100vh;
+}
+
+#search-input {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(13, 15, 20, 0.95);
+  color: var(--text);
+  height: 42px;
+  font-size: 0.95rem;
+}
+
+#search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.25);
+}
+
+#search-icon {
+  color: var(--text-alt);
+}
+
+#team-list {
+  gap: 10px;
+}
+
+.ai-copilot {
+  margin: 10px 0 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(13, 15, 20, 0.86);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+}
+
+.ai-copilot-title {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-copilot-title i {
+  color: var(--accent);
+}
+
+.ai-copilot-sub {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--text-alt);
+}
+
+.ai-copilot-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.ai-chip {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(30, 33, 41, 0.9);
+  color: var(--text-alt);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.ai-chip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.ai-question {
+  width: 100%;
+  margin-top: 10px;
+  min-height: 82px;
+  resize: vertical;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(13, 15, 20, 0.95);
+  color: var(--text);
+  padding: 10px;
+  font-size: 0.8rem;
+}
+
+.ai-question:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.22);
+}
+
+.ai-ask-btn {
+  margin-top: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 9px;
+  height: 38px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  background: linear-gradient(135deg, var(--accent), #5f56ec);
+  color: #fff;
+  cursor: pointer;
+}
+
+.ai-ask-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.ai-answer {
+  margin-top: 10px;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--text);
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+.team-container {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top-width: 1px;
+  background: rgba(30, 33, 41, 0.9);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.28);
+  transition: transform 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.team-container:hover {
+  transform: translateY(-2px);
+  border-color: rgba(108, 99, 255, 0.6);
+}
+
+.team-container > .team-number {
+  color: var(--accent);
+}
+
+.team-container.selected {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(34, 211, 160, 0.12));
+  border-color: rgba(108, 99, 255, 0.6);
+}
+
+.team-container.selected > .team-number,
+.team-container.selected > .team-name {
+  color: var(--text);
+}
+
+#bubble-sheet-switch,
+#filter-teams-switch {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(30, 33, 41, 0.9);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  height: 42px;
+}
+
+#bubble-sheet-switch.selected,
+#filter-teams-switch.selected {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.95), rgba(93, 83, 243, 0.95));
+  color: #fff;
+  border-color: transparent;
+}
+
+#welcome-text {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+#welcome-subtext {
+  font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+  color: var(--text-alt);
+  margin-bottom: 20px;
+}
+
+#demo-label {
+  font-size: 1rem;
+  color: #10131a;
+  background: #f59e0b;
+  border-radius: 999px;
+  padding: 6px 14px;
+  margin: 0;
+  font-weight: 700;
+}
+
+#event-dropdown button {
+  background: rgba(22, 25, 32, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+#event-dropdown button:hover {
+  border-color: var(--accent);
+  margin: 0;
+}
+
+#event-menu {
+  background: rgba(22, 25, 32, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+#event-menu div {
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+#event-menu div:hover {
+  background: rgba(108, 99, 255, 0.16);
+}
+
+#loading-bar {
+  background: linear-gradient(90deg, var(--accent), var(--accent-alt));
+}
+
+#bubble-sheet-controls {
+  background: rgba(22, 25, 32, 0.82);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#bubble-sheet-controls label {
+  color: var(--text-alt);
+  font-size: 0.8rem;
+  margin: 0 6px 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#bubble-sheet-controls select {
+  background: rgba(13, 15, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+@media (max-width: 1100px) {
+  #sidebar {
+    background: rgba(22, 25, 32, 0.96);
+  }
+
+  .sidebar-toggle {
+    background: linear-gradient(135deg, var(--accent), #5f56ec);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  }
+}

@@ -19,6 +19,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug secrets presence
+        run: |
+          echo "GCP_SA_KEY set: ${{ secrets.GCP_SA_KEY != '' }}"
+          echo "GCP_SA_KEY length: ${#GCP_SA_KEY}"
+          echo "SUPABASE_URL set: ${{ secrets.SUPABASE_URL != '' }}"
+          echo "SUPABASE_SERVICE_ROLE_KEY set: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}"
+          echo "TBA_API_KEY set: ${{ secrets.TBA_API_KEY != '' }}"
+          echo "ACCESS_CODE set: ${{ secrets.ACCESS_CODE != '' }}"
+          echo "GEMINI_API_KEY set: ${{ secrets.GEMINI_API_KEY != '' }}"
+          echo "GOOGLE_CLIENT_ID set: ${{ secrets.GOOGLE_CLIENT_ID != '' }}"
+          echo "GOOGLE_CLIENT_SECRET set: ${{ secrets.GOOGLE_CLIENT_SECRET != '' }}"
+          echo "GCP_SA_KEY first 20 chars: ${GCP_SA_KEY:0:20}"
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:

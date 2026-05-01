@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_ID:     spotv2
+  PROJECT_ID:     spot-495003
   SERVICE:        spotv2
   REGION:         us-central1
-  IMAGE:          gcr.io/spotv2/spotv2
+  IMAGE:          gcr.io/spot-495003/spotv2
   TBA_EVENT_KEY:  2026joh
 
 jobs:

@@ -1,0 +1,78 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: spotv2
+  SERVICE:    spotv2
+  REGION:     us-central1
+  IMAGE:      gcr.io/spotv2/spotv2
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Enable required APIs
+        run: |
+          gcloud services enable \
+            run.googleapis.com \
+            cloudbuild.googleapis.com \
+            artifactregistry.googleapis.com \
+            --project=${{ env.PROJECT_ID }} --quiet
+
+      - name: Build and push image
+        run: |
+          cp deploy/gcp/Dockerfile .
+          cp deploy/gcp/.dockerignore .
+          gcloud builds submit \
+            --tag ${{ env.IMAGE }} \
+            --project ${{ env.PROJECT_ID }} \
+            --quiet
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image ${{ env.IMAGE }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8080 \
+            --session-affinity \
+            --min-instances 0 \
+            --max-instances 1 \
+            --memory 512Mi \
+            --cpu 1 \
+            --timeout 300 \
+            --execution-environment gen2 \
+            --set-env-vars "\
+              SUPABASE_URL=${{ secrets.SUPABASE_URL }},\
+              SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }},\
+              TBA_API_KEY=${{ secrets.TBA_API_KEY }},\
+              TBA_EVENT_KEY=${{ secrets.TBA_EVENT_KEY }},\
+              ACCESS_CODE=${{ secrets.ACCESS_CODE }},\
+              GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},\
+              GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},\
+              GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+            --project ${{ env.PROJECT_ID }} \
+            --quiet
+
+      - name: Print URL
+        run: |
+          gcloud run services describe ${{ env.SERVICE }} \
+            --region ${{ env.REGION }} \
+            --format="value(status.url)" \
+            --project ${{ env.PROJECT_ID }}

@@ -6,10 +6,11 @@ on:
   workflow_dispatch:
 
 env:
-  PROJECT_ID: spotv2
-  SERVICE:    spotv2
-  REGION:     us-central1
-  IMAGE:      gcr.io/spotv2/spotv2
+  PROJECT_ID:     spotv2
+  SERVICE:        spotv2
+  REGION:         us-central1
+  IMAGE:          gcr.io/spotv2/spotv2
+  TBA_EVENT_KEY:  2026joh
 
 jobs:
   deploy:
@@ -62,7 +63,7 @@ jobs:
               SUPABASE_URL=${{ secrets.SUPABASE_URL }},\
               SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }},\
               TBA_API_KEY=${{ secrets.TBA_API_KEY }},\
-              TBA_EVENT_KEY=${{ secrets.TBA_EVENT_KEY }},\
+              TBA_EVENT_KEY=${{ env.TBA_EVENT_KEY }},\
               ACCESS_CODE=${{ secrets.ACCESS_CODE }},\
               GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},\
               GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},\
